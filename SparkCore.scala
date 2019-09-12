@@ -36,6 +36,15 @@ object SparkCore {
     hdd.distinct().saveAsTextFile("/home/ubuntu/Downloads/namenode/DistinctLine")
     hdd.map(line => (line,1)).reduceByKey((key1,key2) => key1+key2).saveAsTextFile("/home/ubuntu/Downloads/namenode/CountOfError")
     hdd.countByValue().foreach(println)
+    val testWholeText = context.wholeTextFiles("/home/ubuntu/Downloads/namenode/TestWholeText")
+    val filenames = testWholeText.keys.collect()
+    println(testWholeText.count() +" are the number of files ")
+    for(file <- filenames){
+      println(s"location of the file -> $file")
+    }
+
+
+
   }
 
 
