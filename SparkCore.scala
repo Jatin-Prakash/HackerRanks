@@ -1,5 +1,8 @@
 package src.main.scala.com.spark.DataFramePractices
 
+import java.io.StringReader
+import com.datastax.spark.connector._
+import com.opencsv.CSVReader
 import org.apache.hadoop.mapred.TextInputFormat
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf, SparkContext}
@@ -34,6 +37,7 @@ object SparkCore {
     }).saveAsTextFile("/home/ubuntu/Downloads/namenode/cancelationReason")
 
     hdd.distinct().saveAsTextFile("/home/ubuntu/Downloads/namenode/DistinctLine")
+
     hdd.map(line => (line,1)).reduceByKey((key1,key2) => key1+key2).saveAsTextFile("/home/ubuntu/Downloads/namenode/CountOfError")
     hdd.countByValue().foreach(println)
     val testWholeText = context.wholeTextFiles("/home/ubuntu/Downloads/namenode/TestWholeText")
@@ -43,9 +47,27 @@ object SparkCore {
       println(s"location of the file -> $file")
     }
 
+    testWholeText.mapValues(line => line +"file contains "+line.length +" number of words").foreach(println)
+
+    println("------------------------------------------------dealing with Semi Structure format----------------------------------")
+
+    val insuranceRecord = context.textFile("/home/ubuntu/Downloads/namenode/TestWholeText/FL_insurance_sample.csv")
+    insuranceRecord.map(record => {
+      val reader = new CSVReader(new StringReader(record))
+      reader.readNext()
+    })
+
+
+connectToCassandra(context)
 
 
   }
 
+
+  def connectToCassandra(context: SparkContext ) = {
+
+    lazy val data = context.cassandraTable("sparkdb","edwdata")
+    data.foreach(println)
+  }
 
 }

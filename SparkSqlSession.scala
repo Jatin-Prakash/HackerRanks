@@ -14,7 +14,6 @@ object SparkSqlSession {
     getDataframe(session)
   }
 
-
   def getDataframe(session : SparkSession): Unit = {
     val csvFile =  session.read.option("header","true").csv("/home/ubuntu/Downloads/namenode/TestWholeText/FL_insurance_sample.csv")
     //csvFile.show()
