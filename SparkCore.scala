@@ -9,14 +9,21 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 object SparkCore {
 
+  val conf = new SparkConf().setMaster("local").setAppName("SparkCore")
+  val context = new SparkContext(conf)
+  val blankLine = context.accumulator(0)
+  val lineWithWords = context.accumulator(0)
+
   def main(args: Array[String]): Unit = {
 
-    val conf = new SparkConf().setMaster("local").setAppName("SparkCore")
-    val context = new SparkContext(conf)
-    val session = SparkSession.builder().config(conf).getOrCreate()
+   val session = SparkSession.builder().config(conf).getOrCreate()
     val hdd = context.textFile("hdfs://localhost:54310/user/ubuntu/jpi.txt")
     //hdd.foreach(println)
     val error = hdd.filter(line  => line.contains("Error"))
+   hdd.flatMap(wordCount).map(x => (x,1)).reduceByKey((x,y) =>x+y).foreach(println)
+
+    println("the values of "+blankLine +" and "+lineWithWords)
+
    error.foreach(println)
     println("the line containing error "+error.count())
    val exception =  hdd.filter(line => line.contains("Exception"))
@@ -70,4 +77,15 @@ connectToCassandra(context)
     data.foreach(println)
   }
 
+  def wordCount(line : String) : Array[String] = {
+println("started at wordCount method")
+    if(line.contains(" ")){
+      blankLine +=1
+      Array[String]()
+    }else{
+        lineWithWords +=1
+      line.split(" ")
+    }
+
+  }
 }

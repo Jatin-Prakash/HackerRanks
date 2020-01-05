@@ -19,6 +19,7 @@ object SparkSqlSession {
     csvFile.distinct().orderBy("statecode").show(50)
     csvFile.select("statecode","county").distinct().show(50)
     println( csvFile.filter("statecode = 'FL'" ).count())
-
+    csvFile.createOrReplaceTempView("countyDetails")
+    session.sql("select * from countyDetails where county = 'CLAY COUNTY'").show()
   }
 }
